@@ -4,7 +4,8 @@ from astropy.table import Table
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-
+import ztest
+import importlib as il
 
 src_dir = os.getcwd()
 main_dir = os.path.dirname(src_dir)
@@ -68,16 +69,61 @@ plt.plot(x,exp(x,*popt))
 plt.plot(hist[1][3:-1],hist[0][3:],".")
 
 
+
+#il.reload(ztest)
 n0=500
-delta0=1
+delta0=0.2
 
 n1=50
-delta1=1e-12
+delta1=5e-15
+""" 
+f0_start=2.4179008016032064
+f1_start=4.374030612244898e-13
+"""
+
+"""
+f0_start=2.7595841683366733
+f1_start=4.337295918367347e-13
+"""
+
+f0_start=2.856978957915832
+f1_start=4.2872959183673473e-13
 
 f0_arr=np.linspace(f0_start-delta0,f0_start+delta0,n0)
 f1_arr=np.linspace(f1_start-delta1,f1_start+delta1,n1)
 
-#f0 scorre sulle righe ->, f1 scorre sulle colonne |
+ph_time=np.array(bary.data["TIME"])-t0
+np.save("ph_time.npy",ph_time)
+
+
+z_test=ztest.mod.matrix(ph_time,f0_arr,f1_arr)
+z_test=(2/len(bary.data))*z_test
+#np.save("z_test.npy",z_test)
+
+plt.figure(figsize=(10,10))
+
+#ATTENZIONE AGLI ASSI FORSE SBAGLIATI
+plt.imshow(z_test,aspect='auto',extent=[f1_arr[0],f1_arr[-1],f0_arr[-1],f0_arr[0]])
+plt.colorbar()
+plt.xlabel("$f_1$ [Hz]")
+plt.ylabel("$f_0$ [Hz]")
+plt.title("Z Test($f_0$ , $f_1$)")
+
+z_test_max=np.max(z_test)
+arg=np.argmax(z_test)
+f_best_index=np.unravel_index(arg,z_test.shape)
+f0_best=f0_arr[f_best_index[0]]
+f1_best=f1_arr[f_best_index[1]]
+
+
+
+
+
+
+
+
+
+""" #f0 scorre sulle righe ->, f1 scorre sulle colonne |
 ffdot=np.array([[(x,y) for x in f0_arr] for y in f1_arr])
 
 def phi(t,f0,f1):
@@ -94,6 +140,9 @@ def ztest(phi_arr,n=10,N=len(bary.data)):
 
 
 z_mat=[[ztest(np.array([phi(t,x,y) for t in bary.data["TIME"]])) for x in f0_arr] for y in f1_arr]
+
+
+"""
 
 
 
