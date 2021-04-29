@@ -201,7 +201,7 @@ class Data():
     def light_curve(self,e_min=0,e_max=500000,bins=100,offset=0):
         ph=self.phase[(self.data["ENERGY"]>e_min) & (self.data["ENERGY"]<e_max)]
         ph=((ph+offset)%(2*np.pi))
-        plt.hist(ph/np.pi,bins)
+        plt.hist(ph/(2*np.pi),bins)
         plt.show()
         
 
@@ -229,3 +229,9 @@ bary.light_curve(offset=1)
 #TODO Perchè le curve luce vengono così diverse dal paper?
 #TODO Perchè nello scatter fase,termpo le righe di accumulazione sono interrotte a circa metà?
 #TODO Fare fit 3D con doppia gaussiana sullo ztest e assegnare errori a f0 e f1
+
+#TODO Fare ztest con questi valori ma n0 e n1 molto più grandi
+##! E' QUESTO QUELLO GIUSTO, QUELLO FATTO PRIMA E SALVATO E' SBAGLIATO
+bary.ztest(f0_start=4.2175668090730865,df0=0.0000004,n0=100,f1_start=-1.962982374132375e-13,df1=2e-14,n1=100)
+bary.ztest_map()
+bary.scatter_phase()
