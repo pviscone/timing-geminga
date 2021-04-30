@@ -147,11 +147,11 @@ class Data():
         
     @jit    
     def ztest(self, save=False,
-                    f0_start=4.21752323401995,
-                    df0=     0.00000005,
-                    n0=1000,                    
-                    f1_start=-1.96678571365e-13,
-                    df1=      2.0000e-14,
+                    f0_start=4.2175668090730865,                    
+                    df0=     0.000001,
+                    n0=1000,
+                    f1_start=-1.962982374132375e-13,
+                    df1=3e-14,
                     n1=100,
                     n_harm=10):
         self.f0_arr=np.linspace(f0_start-df0,f0_start+df0,n0)
@@ -204,6 +204,31 @@ class Data():
         plt.hist(ph/(2*np.pi),bins)
         plt.show()
         
+        
+        
+    def f_fit(self):
+        plt.figure(figsize=(16, 16))
+        #ax = plt.axes(projection='3d')
+        X,Y=np.meshgrid(self.f0_arr,self.f1_arr)
+        #ax.plot_surface(X, Y, self.z_test, rstride=1, cstride=1, cmap='viridis', edgecolor='none', antialiased=False)
+        xdata=np.vstack((X.ravel(),Y.ravel()))
+        def gauss(xy,a,f0,s0,f1,s1,c):
+            x,y=xy
+            return a*np.exp(-((x-f0)/s0)**2)*np.exp(-((y-f1)/s1)**2)+c
+        
+        def ellipse(t,s0,s1):
+            x=s0*np.cos(t)
+            y=s1*np.sin(t)
+            return x,y
+        
+        popt,pcov=curve_fit(gauss,xdata,self.z_test.ravel(),p0=[20000,self.f0_best,0.0000001,self.f1_best,1e-14,0])
+        #ax.plot_surface(X, Y, gauss((X,Y),*popt), rstride=1, cstride=1, cmap='viridis', edgecolor='none', antialiased=False)
+        plt.imshow(gauss((X,Y),*popt),aspect='auto',extent=[self.f0_arr[0],self.f0_arr[-1],self.f1_arr[-1],self.f1_arr[0]])
+        t=np.linspace(0,2*np.pi,1000)
+        plt.plot(popt[1]+popt[2]*np.cos(t),popt[3]+popt[4]*np.sin(t),'r')        
+        plt.ylim(self.f1_arr[-1],self.f1_arr[0])
+        plt.show()
+        return popt, pcov
 
 
 tt=Data("PSRJ_Geminga_3deg_100mev_tt.fits")
@@ -211,7 +236,7 @@ bary=Data("PSRJ_Geminga_3deg_100mev_bary.fits",ztest_load=True)
 
 
 
-
+""" 
 tt.mapping(300)
 tt.mapping(1000)
 tt.aitoff()
@@ -219,19 +244,19 @@ popt=tt.energy_plot()
 
 
 
-#bary.ztest()
-bary.ztest_map()
-
-bary.scatter_phase()
-bary.light_curve(offset=1)
+#bary.ztest(f0_start=4.2175668090730865,df0=0.000001,n0=1000,f1_start=-1.962982374132375e-13,df1=3e-14,n1=100)
 
 
-#TODO Perchè le curve luce vengono così diverse dal paper?
-#TODO Perchè nello scatter fase,termpo le righe di accumulazione sono interrotte a circa metà?
-#TODO Fare fit 3D con doppia gaussiana sullo ztest e assegnare errori a f0 e f1
 
-#TODO Fare ztest con questi valori ma n0 e n1 molto più grandi
-##! E' QUESTO QUELLO GIUSTO, QUELLO FATTO PRIMA E SALVATO E' SBAGLIATO
-bary.ztest(f0_start=4.2175668090730865,df0=0.000001,n0=1000,f1_start=-1.962982374132375e-13,df1=3e-14,n1=100)
+
 bary.ztest_map()
 bary.scatter_phase()
+bary.light_curve(offset=2.2)
+
+"""
+
+
+#TODO mettere fit e imshow dati su stessa scala per comparare (aggingere tutto a uno stesso metodo con flag fit=false/true)
+#TODO Aggiungere contour plot delle sigma anche su dati
+#! NB nel fit assunzione che f0 e f1 indipendenti. Assunzione forte ma ben verificata
+
