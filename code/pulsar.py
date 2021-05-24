@@ -57,9 +57,9 @@ class Data():
         y0=ym-d
         y1=ym+d
         plt.hist2d(gamma_E["L"],gamma_E["B"],cmap='plasma',vmax=vmax,bins=(80,80),range=[[x0,x1],[y0,y1]])
-        cb=plt.colorbar()
-        cb.ax.tick_params(labelsize=20)
-        cb.set_label(label="Counts",size=20)
+        #cb=plt.colorbar()
+        #cb.ax.tick_params(labelsize=20)
+        #cb.set_label(label="Counts",size=20)
         plt.xlabel("L [°]",fontsize=18)
         plt.ylabel("B [°]",fontsize=18)
         plt.xticks(fontsize=15)
@@ -87,7 +87,7 @@ class Data():
         hist=plt.hist(self.data["ENERGY"],bins=200,range=(0,8000))
         def exp(x,a,t):
             return a*np.exp(-x/t)
-        popt,pcov=curve_fit(exp,hist[1][3:-1],hist[0][3:],p0=[2000,1000])
+        popt,pcov=curve_fit(exp,hist[1][3:-1],hist[0][3:],p0=[2000,2460])
         x=np.linspace(60,8000,400)
         plt.plot(x,exp(x,*popt))
         plt.xlabel("Energy [MeV]",size=18)
@@ -251,9 +251,9 @@ class Data():
         plt.xticks(size=16)
         plt.yticks(size=16)
         #plt.title("Phasogram")
-        plt.hist(ph,bins)
+        hist=plt.hist(ph,bins)
         #plt.show()
-        
+        return hist
         
     #don't use fit for error estimation
     def f_fit(self):
@@ -381,9 +381,10 @@ def ppdot():
 
 
 def  curves():
+    global lc
     plt.figure(figsize=(15,38))
     plt.subplot(511)
-    bary.light_curve()
+    lc=bary.light_curve()
     plt.title("Phasogram",fontsize=16)
     
     plt.subplot(512)
@@ -435,3 +436,22 @@ ztest_max={bary.z_test_max:.2e} \n\
 """
 
 #TODO Remove some reduncancies in save/load functions and remove obsolete comments
+
+def peak():
+    from scipy.signal import find_peaks
+    arr_h=lc[0][:int(len(lc[0])/2)]
+    arr_x=lc[1][:int(len(lc[1])/2)]
+    def pk(x,a1,a2,s1,s2,x1,x2,c):
+        return a1*np.exp(-((x-x1)**2)/s1)+a2*np.exp(-((x-x2)**2)/s2)+c
+    peak=find_peaks(lc[0],height=800)
+    peak_h=peak[1]["peak_heights"]
+    peak_x=lc[1][peak[0]]
+    mask=( (arr_x>0.18) & (arr_x<0.35)) | ((arr_x>0.6) & (arr_x<0.8))
+    popt,pcov=curve_fit(pk,arr_x[mask],arr_h[mask],p0=[peak_h[0],peak_h[1],0.01,0.1,peak_x[0],peak_x[1],100])     
+    x=np.linspace(0,1,100)
+    plt.plot(x,pk(x,*popt))
+    plt.plot(arr_x[mask],arr_h[mask])
+    print(f"La distanza tra i picchi è {popt[-2]-popt[-3]} pm {np.sqrt(pcov[2,2]+pcov[3,3])}")
+    print(f"il rapporto tra i picchi è {popt[1]/popt[0]} pm {np.sqrt((np.sqrt(pcov[0,0])*popt[1]/popt[0]**2)**2+(np.sqrt(pcov[1,1])/popt[0])**2)}")
+
+peak()
