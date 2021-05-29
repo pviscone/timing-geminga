@@ -47,7 +47,7 @@ class Data():
     
     def mapping(self,energy,vmax=120):
         gamma_E=self.data[self.data["ENERGY"]>energy]
-        plt.figure(figsize=(17,15))
+        plt.figure()
         plt.subplot(111)
         xm=195.1317
         d=2
@@ -57,17 +57,17 @@ class Data():
         y0=ym-d
         y1=ym+d
         plt.hist2d(gamma_E["L"],gamma_E["B"],cmap='plasma',vmax=vmax,bins=(80,80),range=[[x0,x1],[y0,y1]])
-        #cb=plt.colorbar()
+        cb=plt.colorbar()
         #cb.ax.tick_params(labelsize=20)
         #cb.set_label(label="Counts",size=20)
-        plt.xlabel("L [°]",fontsize=18)
-        plt.ylabel("B [°]",fontsize=18)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
+        plt.xlabel("L [°]")
+        plt.ylabel("B [°]")
+        plt.xticks()
+        plt.yticks()
         plt.grid(alpha=0.6,linestyle=":")
         #plt.xlim(194.1317,196.1317)
         #plt.ylim(3.4252836,5.0252836)
-        plt.title(f"Gamma with Energy>{energy} MeV map",fontsize=20)
+        plt.title(f"Gamma with Energy>{energy} MeV map")
         plt.show()
         
     def aitoff(self):
@@ -82,7 +82,7 @@ class Data():
         plt.show()
         
     def energy_plot(self):
-        plt.figure(figsize=(15,15))
+        plt.figure()
         #hist=plt.hist(self.data["ENERGY"],bins=200,range=(0,8000))
         hist=plt.hist(self.data["ENERGY"],bins=200,range=(0,8000))
         def exp(x,a,t):
@@ -90,12 +90,12 @@ class Data():
         popt,pcov=curve_fit(exp,hist[1][3:-1],hist[0][3:],p0=[2000,2460])
         x=np.linspace(60,8000,400)
         plt.plot(x,exp(x,*popt))
-        plt.xlabel("Energy [MeV]",size=18)
-        plt.ylabel("Counts",size=18)
-        plt.title("Gamma spectrum",fontsize=22)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
-        plt.text(4000,2000,f"{popt[0]:.2f}  $e^ {'{'} -E/{popt[1]:.2f} {'}'} $",size=20)
+        plt.xlabel("Energy [MeV]")
+        plt.ylabel("Counts")
+        plt.title("Gamma spectrum")
+        plt.xticks()
+        plt.yticks()
+        plt.text(4000,2000,f"{popt[0]:.2f}  $e^ {'{'} -E/{popt[1]:.2f} {'}'} $")
         #plt.plot(hist[1][3:-1],hist[0][3:],".")
         plt.show()
         return popt
@@ -204,19 +204,19 @@ class Data():
         """
     
     def ztest_map(self):
-        plt.figure(figsize=(18,16))
+        plt.figure()
         
         plt.imshow(self.z_test,aspect='auto',extent=[self.f0_arr[0],self.f0_arr[-1],self.f1_arr[-1],self.f1_arr[0]])
         #plt.imshow(self.z_test,aspect='auto')
         cb=plt.colorbar()
-        cb.ax.tick_params(labelsize=20)
-        plt.xlabel("$f_0$ [Hz]",fontsize=18)
-        plt.ylabel("$f_1$ [$Hz^2$]",fontsize=18)
-        plt.title("Z Test($f_0$ , $f_1$)",fontsize=22)
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.axes().yaxis.get_offset_text().set_size(18)
-        plt.axes().xaxis.get_offset_text().set_size(18)
+        cb.ax.tick_params()
+        plt.xlabel("$f_0$ [Hz]")
+        plt.ylabel("$f_1$ [$Hz^2$]")
+        plt.title("Z Test($f_0$ , $f_1$)")
+        plt.xticks()
+        plt.yticks()
+        #plt.axes().yaxis.get_offset_text().set_size(18)
+        #plt.axes().xaxis.get_offset_text().set_size(18)
         #h, w = (self.z_test).shape
         # plt.figure(figsize=(16, 8))
         #ax = plt.axes(projection='3d')
@@ -227,16 +227,16 @@ class Data():
 
     def scatter_phase(self):
         #plt.plot(self.phase,self.ph_time,".",markersize=2)
-        plt.figure(figsize=(15,12))
+        plt.figure()
         plt.hist2d(self.phase/(2*np.pi),self.ph_time,bins=(100,100))
         cb=plt.colorbar()
-        cb.set_label(label="Counts",size=20)
-        cb.ax.tick_params(labelsize=20)
-        plt.xlabel("Phase",fontsize=18)
-        plt.ylabel("$t-t_0$ [s]",fontsize=18)
-        plt.title("Phase-Time histogram",fontsize=20)
-        plt.xticks(size=18)
-        plt.yticks(size=18)
+        cb.set_label(label="Counts")
+        cb.ax.tick_params()
+        plt.xlabel("Phase")
+        plt.ylabel("$t-t_0$ [s]")
+        plt.title("Phase-Time histogram")
+        plt.xticks()
+        plt.yticks()
         plt.axes().yaxis.get_offset_text().set_size(18)
         plt.show()
         
@@ -246,10 +246,10 @@ class Data():
         ph=np.array(ph)/(2*np.pi)
         ph=np.concatenate((ph,ph+1))
         #plt.figure(figsize=(12,5))
-        plt.xlabel("Phase",fontsize=16)
-        plt.ylabel("Counts",fontsize=16)
-        plt.xticks(size=16)
-        plt.yticks(size=16)
+        
+        plt.ylabel("Counts",fontsize=22)
+        plt.xticks(size=22)
+        plt.yticks(size=22)
         #plt.title("Phasogram")
         hist=plt.hist(ph,bins)
         #plt.show()
@@ -385,24 +385,24 @@ def  curves():
     plt.figure(figsize=(15,38))
     plt.subplot(511)
     lc=bary.light_curve()
-    plt.title("Phasogram",fontsize=16)
+    plt.title("Phasogram",fontsize=24)
     
     plt.subplot(512)
     bary.light_curve(e_max=300)
-    plt.title("Phasogram E<300MeV",fontsize=16)
+    plt.title("Phasogram E<300MeV",fontsize=24)
     
     plt.subplot(513)
     bary.light_curve(e_min=300,e_max=1000)
-    plt.title("Phasogram 0.3-1 Gev",fontsize=16)
+    plt.title("Phasogram 0.3-1 Gev",fontsize=24)
     
     plt.subplot(514)
     bary.light_curve(e_min=1000,e_max=3000)
-    plt.title("Phasogram 1-3 GeV",fontsize=16)
+    plt.title("Phasogram 1-3 GeV",fontsize=24)
     
     plt.subplot(515)
     bary.light_curve(e_min=3000)
-    plt.title("Phasogram E>3GeV",fontsize=16)
-
+    plt.title("Phasogram E>3GeV",fontsize=24)
+    plt.xlabel("Phase",fontsize=22)
 #bary.ztest(f0_start=4.2175668090730865,df0=0.000001,n0=1000,f1_start=-1.962982374132375e-13,df1=3e-14,n1=100)
 
 tt=Data("PSRJ_Geminga_3deg_100mev_tt.fits")
