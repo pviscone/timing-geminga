@@ -447,11 +447,18 @@ def peak():
     peak_h=peak[1]["peak_heights"]
     peak_x=lc[1][peak[0]]
     mask=( (arr_x>0.18) & (arr_x<0.35)) | ((arr_x>0.6) & (arr_x<0.8))
-    popt,pcov=curve_fit(pk,arr_x[mask],arr_h[mask],p0=[peak_h[0],peak_h[1],0.01,0.1,peak_x[0],peak_x[1],100])     
+    popt,pcov=curve_fit(pk,arr_x[mask],arr_h[mask],sigma=np.sqrt(arr_h[mask]),p0=[peak_h[0],peak_h[1]+200,0.01,0.1,peak_x[0],peak_x[1],100])     
+    def err_x(x,dx,a1,a2,s1,s2,x1,x2,c):
+        return a1*np.exp(-((x-x1)**2)/s1)*2*(x-x1)*dx/(s1)+a2*np.exp(-((x-x2)**2)/s2)*2*(x-x2)*dx/(s2)
+    errors=np.sqrt(arr_h[mask]+err_x(arr_x[mask],(arr_x[mask][2]-arr_x[mask][1]),*popt)**2)
+    popt,pcov=curve_fit(pk,arr_x[mask],arr_h[mask],sigma=errors,p0=[peak_h[0],peak_h[1]+200,0.01,0.1,peak_x[0],peak_x[1],100])         
     x=np.linspace(0,1,100)
     plt.plot(x,pk(x,*popt))
-    plt.plot(arr_x[mask],arr_h[mask])
+    plt.errorbar(arr_x[mask],arr_h[mask],errors,fmt=".")
     print(f"La distanza tra i picchi è {popt[-2]-popt[-3]} pm {np.sqrt(pcov[2,2]+pcov[3,3])}")
     print(f"il rapporto tra i picchi è {popt[1]/popt[0]} pm {np.sqrt((np.sqrt(pcov[0,0])*popt[1]/popt[0]**2)**2+(np.sqrt(pcov[1,1])/popt[0])**2)}")
 
 peak()
+
+import scipy.stats as ss
+ss.distributions.chi2.sf(1000,20)
