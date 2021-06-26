@@ -462,3 +462,19 @@ peak()
 
 import scipy.stats as ss
 ss.distributions.chi2.sf(1000,20)
+
+
+def chisq():
+    from scipy.stats import chi2
+    xxx=np.linspace(0,80,100)
+    plt.hist(bary.z_test[:,bary.f0_arr<4.2175659].flatten(),100,density=True,histtype="step",label=r"$f_0<4.2175659$")
+    plt.hist(bary.z_test[:,bary.f0_arr<4.217566].flatten(),100,density=True,histtype="step",label=r"$f_0<4.21756$")
+    plt.hist(bary.z_test[:,bary.f0_arr<4.2175665].flatten(),100,density=True,histtype="step",label=r"$f_0<4.217565$")
+    plt.plot(xxx, chi2.pdf(xxx, df=20),label=r"$\chi^2_{20}$")
+    plt.plot(xxx, chi2.pdf(xxx, df=25),label=r"$\chi_{25}^2$",c="m")
+    plt.title(r"$Z^2_{10}$ distribution in comparioson with $\chi^2$")
+    plt.xlabel(r"$Z^2_{10}$")
+    plt.ylabel("Normalized Counts")
+    plt.legend()
+
+chisq()
